@@ -1,0 +1,16 @@
+{
+    "name": "discord",
+    "version": "1.0",
+    "description": "My Bot",
+    "main": "index.js",
+    "author": "Daniel Polak",
+    "dependencies": {
+        "axios": "^0.27.2",
+        "discord.io": "^2.5.3",
+        "discord.js": "^14.3.0",
+        "dotenv": "^16.0.2",
+        "node": "^18.9.0",
+        "winston": "^3.8.2",
+        "xhr2": "^0.2.1"
+    }
+}
