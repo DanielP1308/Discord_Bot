@@ -43,20 +43,20 @@ function getAnime(id) {
       //const obj = data;
       //data.forEach(anime => {
       // Log each movie's title
-        animeObject.push(data.data);
+        animeObject.push(data);
       //})
-      console.log(animeObject)
     };
     
   // Send request
   request.send();
   return animeObject;
 }
-ghibliObject = getGhibli();
-animeObject = getAnime(1);
+
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
     console.log('Ready!');
+    ghibliObject = getGhibli();
+    animeObject = getAnime(1);
 });
 
 client.on('messageCreate', function(msg){
@@ -79,6 +79,18 @@ client.on('messageCreate', function(msg){
           .setFooter({ text: 'DanielP1308', iconURL:  ghibliObject[keys[getRandom]].image });
         msg.reply({ embeds: [embededMsg] });
         console.log(ghibliObject[keys[getRandom]].title);
+    }
+    if(msg.content === 'a') {
+      const embededMsg = new EmbedBuilder()
+        .setColor(0x0099FF)
+        .setTitle(animeObject[0].data.title)
+        .setURL(animeObject[0].data.url)
+        .setDescription(animeObject[0].data.synopsis)
+        .setThumbnail(animeObject[0].data.images.jpg.small_image_url)
+        .setImage(animeObject[0].data.images.jpg.image_url)
+        .setTimestamp()
+        .setFooter({ text: 'DanielP1308' });
+      msg.reply({ embeds: [embededMsg] });
     }
 });
 // Login to Discord with your client's token
