@@ -1,33 +1,63 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { token } = require('./auth.json');
 const XMLHttpRequest = require('xhr2');
-var request = new XMLHttpRequest();
-request.open('GET', 'https://ghibliapi.herokuapp.com/films', true);
+//import fetch from 'node-fetch';
+
+
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 var ghibliObject = [];
+var animeObject = [];
 var arrlen = 0;
 var keys = [];
 
-request.onload = function () {
-  // Begin accessing JSON data here
-  var data = JSON.parse(this.response)
-  //const obj = data;
-  data.forEach(movie => {
-  // Log each movie's title
-    ghibliObject.push(movie);
-    arrlen++;
-  });
-  keys = Object.keys(ghibliObject);
-};
 
+function getGhibli() {
+  var request = new XMLHttpRequest();
+  request.open('GET', 'https://ghibliapi.herokuapp.com/films', true);
+
+  request.onload = function () {
+    // Begin accessing JSON data here
+    var data = JSON.parse(this.response);
+    //const obj = data;
+    data.forEach(movie => {
+    // Log each movie's title
+      ghibliObject.push(movie);
+      arrlen++;
+    });
+    keys = Object.keys(ghibliObject);
+  };
+  // Send request
+  request.send();
+  return ghibliObject;
+}
+
+function getAnime(id) {
+  var request = new XMLHttpRequest();
+
+  request.open('GET', `https://api.jikan.moe/v4/anime/${ id }/full`, true);
+    request.onload = function () {
+      // Begin accessing JSON data here
+      var data = JSON.parse(this.response);
+      //const obj = data;
+      //data.forEach(anime => {
+      // Log each movie's title
+        animeObject.push(data.data);
+      //})
+      console.log(animeObject)
+    };
+    
+  // Send request
+  request.send();
+  return animeObject;
+}
+ghibliObject = getGhibli();
+animeObject = getAnime(1);
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
     console.log('Ready!');
 });
-
-
 
 client.on('messageCreate', function(msg){
   console.log("Message Received!")
@@ -51,13 +81,5 @@ client.on('messageCreate', function(msg){
         console.log(ghibliObject[keys[getRandom]].title);
     }
 });
-
-// Open a new connection, using the GET request on the URL endpoint
-
-
-
-
-// Send request
-request.send();
 // Login to Discord with your client's token
 client.login(token);
