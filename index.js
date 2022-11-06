@@ -1,16 +1,16 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { token } = require('./auth.json');
-const XMLHttpRequest = require('xhr2');
-//import fetch from 'node-fetch';
+const { XMLHttpRequest } = require('xhr2');
 
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 var ghibliObject = [];
-var animeObject = [];
+var animeObject = new Array();
 var arrlen = 0;
-var keys = [];
+var keysGhibli = [];
+var keysSearchAnime = [];
 
 
 function getGhibli() {
@@ -26,62 +26,63 @@ function getGhibli() {
       ghibliObject.push(movie);
       arrlen++;
     });
-    keys = Object.keys(ghibliObject);
+    keysGhibli = Object.keys(ghibliObject);
   };
   // Send request
   request.send();
   return ghibliObject;
 }
 
-function getAnime(id) {
-  var request = new XMLHttpRequest();
+/*const getAnimeLogg = async() => {
+  const res = await fetch(`https://api.jikan.moe/v4/anime/?q=one%20piece&limit=5`);
+  const resData = await res.json();
 
-  request.open('GET', `https://api.jikan.moe/v4/anime/${ id }/full`, true);
-    request.onload = function () {
-      // Begin accessing JSON data here
-      var data = JSON.parse(this.response);
-      //const obj = data;
-      //data.forEach(anime => {
-      // Log each movie's title
-        animeObject.push(data);
-      //})
-    };
-    
-  // Send request
-  request.send();
-  return animeObject;
+  resData.data.forEach(anime => {
+    animeObject.push(anime);
+  });
+}*/
+
+async function getAnimeLogg() {
+  const res = await fetch(`https://api.jikan.moe/v4/anime/?q=one%20piece&limit=5`);
+  const resData = await res.json();
+
+  resData.data.forEach(anime => {
+    animeObject.push(anime);
+  });
+  keysSearchAnime = Object.keys(animeObject);
 }
 
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
     console.log('Ready!');
     ghibliObject = getGhibli();
-    animeObject = getAnime(1);
+    getAnimeLogg();
 });
 
 client.on('messageCreate', function(msg){
+  //animeObject = getAnime(5);
   console.log("Message Received!")
     if(msg.content === 'ghibli' || msg.content === 'g'){
         var getRandom = Math.floor(Math.random() * arrlen);
         const embededMsg = new EmbedBuilder()
           .setColor(0x0099FF)
-          .setTitle(ghibliObject[keys[getRandom]].title)
-          .setURL(`https://myanimelist.net/search/all?cat=all&q=${ghibliObject[keys[getRandom]].title.replaceAll(' ', '%20')}`)
-          .setDescription(ghibliObject[keys[getRandom]].description)
-          .setThumbnail(ghibliObject[keys[getRandom]].image)
+          .setTitle(ghibliObject[keysGhibli[getRandom]].title)
+          .setURL(`https://myanimelist.net/search/all?cat=all&q=${ghibliObject[keysGhibli[getRandom]].title.replaceAll(' ', '%20')}`)
+          .setDescription(ghibliObject[keysGhibli[getRandom]].description)
+          .setThumbnail(ghibliObject[keysGhibli[getRandom]].image)
           .addFields(
-            { name: 'Director', value: ghibliObject[keys[getRandom]].director, inline: true },
-            { name: 'Producer', value: ghibliObject[keys[getRandom]].producer, inline: true },
-            { name: 'Release Date', value: ghibliObject[keys[getRandom]].release_date, inline: true }
+            { name: 'Director', value: ghibliObject[keysGhibli[getRandom]].director, inline: true },
+            { name: 'Producer', value: ghibliObject[keysGhibli[getRandom]].producer, inline: true },
+            { name: 'Release Date', value: ghibliObject[keysGhibli[getRandom]].release_date, inline: true }
           )
-          .setImage(ghibliObject[keys[getRandom]].movie_banner)
+          .setImage(ghibliObject[keysGhibli[getRandom]].movie_banner)
           .setTimestamp()
-          .setFooter({ text: 'DanielP1308', iconURL:  ghibliObject[keys[getRandom]].image });
+          .setFooter({ text: 'DanielP1308', iconURL:  ghibliObject[keysGhibli[getRandom]].image });
         msg.reply({ embeds: [embededMsg] });
-        console.log(ghibliObject[keys[getRandom]].title);
+        console.log(ghibliObject[keysGhibli[getRandom]].title);
     }
     if(msg.content === 'a') {
-      const embededMsg = new EmbedBuilder()
+      /*const embededMsg = new EmbedBuilder()
         .setColor(0x0099FF)
         .setTitle(animeObject[0].data.title)
         .setURL(animeObject[0].data.url)
@@ -90,7 +91,10 @@ client.on('messageCreate', function(msg){
         .setImage(animeObject[0].data.images.jpg.image_url)
         .setTimestamp()
         .setFooter({ text: 'DanielP1308' });
-      msg.reply({ embeds: [embededMsg] });
+      msg.reply({ embeds: [embededMsg] });*/
+      //console.log(animeObject[0]);
+      getAnimeLogg();
+      console.log(animeObject[keysSearchAnime[0]].title);
     }
 });
 // Login to Discord with your client's token
