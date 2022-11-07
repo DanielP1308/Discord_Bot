@@ -33,34 +33,25 @@ function getGhibli() {
   return ghibliObject;
 }
 
-/*const getAnimeLogg = async() => {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/?q=one%20piece&limit=5`);
+async function searchAnime(search) {
+  var animeData = [];
+  const res = await fetch(`https://api.jikan.moe/v4/anime/?q=${ search }&limit=5`);
   const resData = await res.json();
 
   resData.data.forEach(anime => {
-    animeObject.push(anime);
+    animeData.push(anime);
   });
-}*/
-
-async function getAnimeLogg() {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/?q=one%20piece&limit=5`);
-  const resData = await res.json();
-
-  resData.data.forEach(anime => {
-    animeObject.push(anime);
-  });
-  keysSearchAnime = Object.keys(animeObject);
+  keysSearchAnime = Object.keys(animeData);
+  return animeData;
 }
 
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
     console.log('Ready!');
     ghibliObject = getGhibli();
-    getAnimeLogg();
 });
 
 client.on('messageCreate', function(msg){
-  //animeObject = getAnime(5);
   console.log("Message Received!")
     if(msg.content === 'ghibli' || msg.content === 'g'){
         var getRandom = Math.floor(Math.random() * arrlen);
@@ -82,19 +73,27 @@ client.on('messageCreate', function(msg){
         console.log(ghibliObject[keysGhibli[getRandom]].title);
     }
     if(msg.content === 'a') {
-      /*const embededMsg = new EmbedBuilder()
+      animeObject = searchAnime('naruto');
+      var embededMsg = new EmbedBuilder();
+      var count = 0;
+      
+      animeObject.then(function(res) {
+        console.log(res);
+        
+        embededMsg
         .setColor(0x0099FF)
-        .setTitle(animeObject[0].data.title)
-        .setURL(animeObject[0].data.url)
-        .setDescription(animeObject[0].data.synopsis)
-        .setThumbnail(animeObject[0].data.images.jpg.small_image_url)
-        .setImage(animeObject[0].data.images.jpg.image_url)
+        .setTitle("Search String")
+        .setURL(res[keysSearchAnime[0]].url)
+        /*.setDescription(list[keysSearchAnime[0]].synopsis)
+        .setThumbnail(list[keysSearchAnime[0]].images.jpg.small_image_url)
+        .setImage(list[keysSearchAnime[0]].images.jpg.image_url)
         .setTimestamp()
-        .setFooter({ text: 'DanielP1308' });
-      msg.reply({ embeds: [embededMsg] });*/
-      //console.log(animeObject[0]);
-      getAnimeLogg();
-      console.log(animeObject[keysSearchAnime[0]].title);
+        .setFooter({ text: 'DanielP1308' });*/
+        for(var i = 0; i < 5; i++) {
+          embededMsg.addFields({ name: `${i}:`, value: res[keysSearchAnime[i]].title, url: res[keysSearchAnime[i]].url })
+        }
+        msg.reply({ embeds: [embededMsg] });
+      })
     }
 });
 // Login to Discord with your client's token
